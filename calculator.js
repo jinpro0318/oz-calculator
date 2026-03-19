@@ -6,9 +6,11 @@ let operator = null; // 선택된 연산자
 // 숫자 버튼 클릭 시 디스플레이에 숫자 추가
 const appendNumber = (number) => {
   try {
-    // TODO: 작성해야 할 로직
-    // 1. number가 유효한 숫자인지 확인 (예: 문자열 "0" ~ "9")
-    // 예: if (!/^[0-9]$/.test(number)) throw new Error("유효한 숫자를 입력하세요.");
+    // TODO: 1. number가 유효한 숫자인지 확인 ("0" ~ "9")
+    // [비교 연산자/정규표현식 활용] 유효하지 않은 숫자 입력 시 에러 처리
+    if (!/^[0-9]$/.test(number)) {
+        throw new Error("유효한 숫자를 입력하세요.");
+    }
 
     // currentInput에 숫자 추가
     currentInput += number;
@@ -25,9 +27,12 @@ const appendNumber = (number) => {
 // 연산자 버튼 클릭 시 연산자 설정
 const setOperator = (op) => {
   try {
-    // TODO: 작성해야 할 로직
-    // 2. op가 유효한 연산자(+, -, *, /)인지 확인
-    // 예: if (!["+", "-", "*", "/"].includes(op)) throw new Error("유효한 연산자를 선택하세요.");
+    // TODO: 2. op가 유효한 연산자(+, -, *, /)인지 확인
+    // [배열/메서드 활용] const 사용: 허용된 연산자 목록 정의
+    const operators = ["+", "-", "*", "/"];
+    if (!operators.includes(op)) {
+        throw new Error("유효한 연산자를 선택하세요.");
+    }
 
     // 현재 입력값이 없으면 예외 처리
     if (!currentInput) throw new Error("숫자를 먼저 입력하세요.");
@@ -35,9 +40,11 @@ const setOperator = (op) => {
     // 첫 번째 숫자 저장
     firstNumber = Number(currentInput);
 
-    // TODO: 작성해야 할 로직
-    // 3. firstNumber가 유효한 숫자인지 확인
-    // 예: if (isNaN(firstNumber)) throw new Error("유효한 숫자를 입력하세요.");
+    // TODO: 3. firstNumber가 유효한 숫자인지 확인
+    // [isNaN 활용] 숫자가 아닌 값이 들어왔을 경우 예외 처리
+    if (isNaN(firstNumber)) {
+        throw new Error("유효한 숫자를 입력하세요.");
+    }
 
     operator = op;
     currentInput = ""; // 입력값 초기화
@@ -60,34 +67,63 @@ const clearDisplay = () => {
 const calculate = () => {
   const resultElement = document.getElementById("result");
   try {
-    // TODO: 작성해야 할 로직
-    // 4. firstNumber, operator, currentInput(두 번째 숫자)이 모두 존재하는지 확인
-    // 예: if (firstNumber === null || operator === null || !currentInput) throw new Error("계산에 필요한 값이 부족합니다.");
+    // TODO: 4. firstNumber, operator, currentInput(두 번째 숫자)이 모두 존재하는지 확인
+    // [비교 연산자/논리 연산자] 필수 값 존재 여부 체크
+    if (firstNumber === null || operator === null || currentInput === "") {
+        throw new Error("계산에 필요한 값이 부족합니다.");
+    }
 
     const secondNumber = Number(currentInput);
 
-    // TODO: 작성해야 할 로직
-    // 5. secondNumber가 유효한 숫자인지 확인
-    // 예: if (isNaN(secondNumber)) throw new Error("유효한 숫자를 입력하세요.");
-    // 6. 나눗셈에서 secondNumber가 0인지 확인
-    // 예: if (operator === "/" && secondNumber === 0) throw new Error("0으로 나눌 수 없습니다.");
+    // TODO: 5. secondNumber가 유효한 숫자인지 확인
+    if (isNaN(secondNumber)) {
+        throw new Error("유효한 숫자를 입력하세요.");
+    }
 
-    let result;
-    // TODO: 작성해야 할 로직
-    // 7. operator에 따라 사칙연산 수행 (switch 문 사용 권장)
-    // 예: switch (operator) { case "+": result = firstNumber + secondNumber; break; ... }
+    // TODO: 6. 나눗셈에서 secondNumber가 0인지 확인
+    if (operator === "/" && secondNumber === 0) {
+        throw new Error("0으로 나눌 수 없습니다.");
+    }
+
+    // [기능 요구사항] var 사용: 최종 결과값을 담을 변수
+    var result;
+
+    // TODO: 7. operator에 따라 사칙연산 수행 (switch 문 사용)
+    switch (operator) {
+        case "+":
+            result = firstNumber + secondNumber;
+            break;
+        case "-":
+            result = firstNumber - secondNumber;
+            break;
+        case "*":
+            result = firstNumber * secondNumber;
+            break;
+        case "/":
+            result = firstNumber / secondNumber;
+            break;
+        default:
+            throw new Error("알 수 없는 연산자입니다.");
+    }
 
     // 결과 출력
     resultElement.classList.remove("d-none", "alert-danger");
     resultElement.classList.add("alert-info");
     resultElement.textContent = `결과: ${result}`;
 
-    // 계산 기록 저장
-    const record = { firstNumber, operator, secondNumber, result };
+    // [객체와 배열] 계산 기록 저장
+    const record = { 
+        firstNumber: firstNumber, 
+        operator: operator, 
+        secondNumber: secondNumber, 
+        result: result 
+    };
     history.push(record);
+    
+    // [출력 형식] 콘솔에 JSON 형식으로 계산 기록 출력
     console.log("계산 기록:", JSON.stringify(history, null, 2));
 
-    // 계산 후 초기화
+    // 계산 후 초기화 (결과값을 다시 currentInput으로 설정하여 연속 계산 가능하게 함)
     currentInput = result.toString();
     firstNumber = null;
     operator = null;
